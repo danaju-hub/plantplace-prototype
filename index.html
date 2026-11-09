@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script><script src="agent.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+
+<div class="start">
+  <div class="hi" id="hi"></div>
+  <h1>What are you looking for today?</h1>
+  <div class="pbox" id="pb">
+    <div id="achip"></div>
+    <textarea id="ta" maxlength="500" placeholder="Ask anything" oninput="upd()" onkeydown="key(event)"></textarea>
+    <div class="ptools">
+      <button class="tool" title="" onclick="file.click()">📎 Attach</button>
+      <input type="file" id="file" accept="image/*" style="display:none" onchange="attach()">
+      <button class="tool" onclick="mic()">🎤 Voice</button>
+      <select id="ps" onchange="setP()"></select>
+      <span class="tool" style="cursor:default">Creativity <input type="range" id="cr" min="0" max="100" oninput="setC()"></span>
+      <button class="tool" id="auto" onclick="toggleAuto()">Autopilot</button>
+      <span class="sp"></span>
+      <span class="counter" id="cnt">0/500</span>
+      <button class="send off" id="sd" onclick="go()">↑</button>
+    </div>
+  </div>
+  <div class="sugg" id="sugg"></div>
+  <div class="fine">PlantPlace AI · Beta &nbsp;·&nbsp; <a href="#" onclick="tips.style.display='flex';return false">Prompt tips</a> &nbsp;·&nbsp; <a href="explore.html">Or browse the marketplace →</a></div>
+</div>
+<div class="modal-bg" id="tips"><div class="modal" style="text-align:left"><span class="close" onclick="tips.style.display='none'">close</span>
+  <h3>Tips for better prompts</h3><p class="muted">Be specific! The more details you give, the better the results will be.</p><button class="btn" onclick="tips.style.display='none'">Got it</button></div></div>
+<div id="chrome-bottom"></div>
+<script>
+  const hr = new Date().getHours(); hi.textContent = (hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening') + ', Dana 🌿';
+  const A = agentSet(); ps.innerHTML = PERSONAS.map(p => `<option value="${p.id}">${p.emoji} ${p.name}</option>`).join(''); ps.value = A.persona; cr.value = A.creativity; auto.classList.toggle('on', A.auto);
+  const setP = () => { const s = agentSet(); s.persona = ps.value; saveAgentSet(s); };
+  const setC = () => { const s = agentSet(); s.creativity = +cr.value; saveAgentSet(s); };   // slider has no effect on results
+  function toggleAuto() { const s = agentSet(); s.auto = !s.auto; saveAgentSet(s); auto.classList.toggle('on', s.auto); }
+  sugg.innerHTML = ['Pet-safe plants', 'Easy plants for low light', 'Send a gift 🎁', 'Surprise me 🎲'].map(t => `<span class="chip" onclick="chip('${t}')">${t}</span>`).join('');
+  function chip(t) { if (t.startsWith('Send a gift')) { location = 'giftcards.html'; return; } if (t.startsWith('Surprise')) { ta.value = EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)]; go(); } else { ta.value = t; upd(); ta.focus(); } }
+  function upd() { cnt.textContent = ta.value.length + '/500'; sd.classList.toggle('off', !ta.value.trim()); }
+  function key(e) { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) go(); }   // plain Enter = new line
+  let fname = null;
+  function attach() { if (file.files[0]) { fname = file.files[0].name; achip.innerHTML = `<span class="attach-chip">${fname} <b onclick="fname=null;achip.innerHTML=''">✕</b></span>`; } }
+  function mic() { toast('Listening…'); setTimeout(() => { ta.value = EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)]; upd(); }, 1200); }
+  function go() {
+    if (!ta.value.trim()) { pb.classList.remove('shake'); void pb.offsetWidth; pb.classList.add('shake'); return; }   // silent shake, no message
+    sessionStorage.setItem('pp_pending', JSON.stringify({ text: ta.value.trim(), file: fname })); location = 'agent.html';
+  }
+  let ex = 0; setInterval(() => { ta.placeholder = EXAMPLES[ex++ % EXAMPLES.length]; }, 3000);
+</script>
+</body></html>

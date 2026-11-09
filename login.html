@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div style="max-width:420px;margin:40px auto;padding:0 20px">
+  <div class="panel" style="padding:28px">
+    <div class="center"><div class="seg"><a class="on" id="t1" onclick="mode(0)">Log in</a><a id="t2" onclick="mode(1)">Sign up</a></div></div>
+    <div class="alert error" id="err">Invalid credentials.</div>
+    <button class="btn secondary block" style="margin-bottom:8px" onclick="location='account.html'">Continue with Google</button>
+    <button class="btn secondary block" style="margin-bottom:14px" onclick="location='account.html'">Continue with Facebook</button>
+    <div class="center tiny" style="margin-bottom:14px">or</div>
+    <div class="field" id="nm" style="display:none"><label>Username</label><input id="u"></div>
+    <div class="field"><label>Email</label><input id="em"></div>
+    <div class="field"><label>Password</label><input type="password" id="pw"></div>
+    <div class="row-between small" style="margin-bottom:14px"><label><input type="checkbox"> Remember me</label><a href="forgot.html">Forgot?</a></div>
+    <button class="btn block" id="go" onclick="submitForm()">Submit</button>
+  </div>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  let m = 0;
+  function mode(i) { m = i; t1.classList.toggle('on', !i); t2.classList.toggle('on', !!i); nm.style.display = i ? 'block' : 'none'; err.classList.remove('show'); }
+  function submitForm() {
+    const ok = em.value && pw.value; em.classList.toggle('bad', !em.value); pw.classList.toggle('bad', !pw.value);
+    if (!ok) { err.classList.add('show'); return; }
+    location = 'account.html';
+  }
+</script>
+</body></html>

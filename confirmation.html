@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Order placed - PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="narrow center">
+  <div class="panel" style="padding:40px">
+    <div class="avatar lg" style="background:var(--green);color:#fff" id="ck2"></div>
+    <h1 style="margin-top:14px">Thank you for your order!</h1>
+    <p class="muted">Order number: <b id="oid"></b></p>
+    <p class="muted">We've sent a confirmation to your email.</p>
+    <div class="upsell" style="text-align:left;margin:16px 0"><b>Loved it? Send a gift to a friend 💚</b><div class="small">Get 10% off your first gift.</div><a class="btn sm" style="margin-top:8px" href="giftcards.html">Send a gift</a></div><a class="btn" href="orders.html">View Orders</a> <a class="btn secondary" href="index.html">Continue Shopping</a>
+  </div>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  ck2.innerHTML = icon('check'); ck2.querySelector('svg').style.cssText = 'width:34px;height:34px'; oid.textContent = q('id') || 'PP-20560';
+  for (let i = 0; i < 28; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.textContent = ['🌿', '🍃', '🌸', '🌱'][i % 4];
+    c.style.left = Math.random() * 100 + 'vw'; c.style.animationDuration = 2 + Math.random() * 3 + 's'; c.style.animationDelay = Math.random() + 's'; document.body.appendChild(c); setTimeout(() => c.remove(), 6500); }
+</script>
+</body></html>

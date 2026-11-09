@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Shop - PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container">
+  <div class="crumbs"><a href="index.html">Home</a> / <a href="browse.html">Shop</a> / All</div>
+  <div class="cols">
+    <div class="filters">
+      <h4>Category</h4>
+      <label><input type="checkbox" name="cat" value="Houseplants"> Houseplants</label>
+      <label><input type="checkbox" name="cat" value="Seeds"> Seeds</label>
+      <label><input type="checkbox" name="cat" value="Pots"> Pots</label>
+      <label><input type="checkbox" name="cat" value="Soil"> Soil</label>
+      <label><input type="checkbox" name="cat" value="Tools"> Tools</label>
+      <label><input type="checkbox" name="cat" value="Outdoor"> Outdoor</label>
+      <h4>Light</h4>
+      <label><input type="checkbox" name="light" value="Low"> Low</label>
+      <label><input type="checkbox" name="light" value="Bright"> Bright</label>
+      <label><input type="checkbox" name="light" value="Full sun"> Full sun</label>
+      <h4>Watering</h4>
+      <label><input type="checkbox" name="water" value="Daily"> Daily</label>
+      <label><input type="checkbox" name="water" value="Weekly"> Weekly</label>
+      <label><input type="checkbox" name="water" value="Monthly"> Monthly</label>
+      <h4>Pet safe</h4>
+      <label><input type="checkbox" id="pet"> Yes</label>
+      <h4>Price</h4>
+      <div class="flex"><input type="number" id="min" placeholder="Min"> – <input type="number" id="max" placeholder="Max"></div>
+      <h4>Seller</h4>
+      <select id="seller"><option value="">All</option></select>
+      <h4>Rating</h4>
+      <select id="rating"><option value="0">Any</option><option>3</option><option>4</option><option>5</option></select>
+      <h4>Size</h4>
+      <label><input type="checkbox" name="size" value="Mini"> Mini</label><label><input type="checkbox" name="size" value="Small"> Small</label>
+      <label><input type="checkbox" name="size" value="Medium"> Medium</label><label><input type="checkbox" name="size" value="Large"> Large</label>
+      <h4>Color</h4><label><input type="checkbox" name="color" value="Green"> Green</label><label><input type="checkbox" name="color" value="Variegated"> Variegated</label>
+      <h4>Condition</h4><label><input type="checkbox" name="cond" value="New"> New</label><label><input type="checkbox" name="cond" value="Used"> Used</label>
+      <h4>Brand</h4><input id="brand" placeholder="Brand">
+      <h4>Location</h4><input id="zip" placeholder="Zip">
+      <button class="btn block" style="margin-top:18px" onclick="pg=1;apply()">Apply</button>
+    </div>
+
+    <div class="grow results">
+      <div class="toolbar"><h1 style="font-size:20px;margin:0" id="ttl">Plants &amp; Products</h1>
+        <select id="sort" onchange="pg=1;apply()"><option>Relevance</option><option value="az">A-Z</option><option value="za">Z-A</option><option value="price">Price</option></select></div>
+      <div class="grid" id="grid"></div>
+      <div class="pager" id="pager"></div>
+    </div>
+  </div>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  let pg = 1; const PER = 6;
+  SELLERS.forEach(s => seller.insertAdjacentHTML('beforeend', `<option>${s}</option>`));
+  const pre = q('cat'); if (pre) { document.querySelector(`input[name=cat][value=${pre}]`).checked = true; ttl.textContent = pre; }
+  if (q('deals')) ttl.textContent = 'Deals';
+  const checked = n => [...document.querySelectorAll(`input[name=${n}]:checked`)].map(i => i.value);
+  function apply() {
+    const cats = checked('cat'), lights = checked('light'), waters = checked('water'), sizes = checked('size'), colors = checked('color'), conds = checked('cond'), term = (q('q') || '').toLowerCase();
+    let r = PRODUCTS.filter(p =>
+      (!term || p.name.toLowerCase().includes(term)) && (!q('deals') || p.deal) &&
+      (!cats.length || cats.includes(p.cat)) && (!sizes.length || sizes.includes(p.size)) &&
+      (!colors.length || colors.includes(p.color)) && (!conds.length || conds.includes(p.cond)) &&
+      (!lights.length || lights.some(l => p.light.includes(l))) &&
+      (!waters.length || waters.includes(p.water)) &&
+      (!pet.checked || p.pet) &&
+      (!min.value || p.price >= +min.value) && (!max.value || p.price <= +max.value) &&
+      (!brand.value || p.seller.toLowerCase().includes(brand.value.toLowerCase())) &&
+      (!zip.value || (SELLER_ZIP[p.seller] || '00000').startsWith(zip.value)) &&
+      (!seller.value || p.seller === seller.value) && p.rating >= +rating.value);
+    if (sort.value === 'az') r.sort((a, b) => a.name.localeCompare(b.name));
+    if (sort.value === 'za') r.sort((a, b) => b.name.localeCompare(a.name));
+    if (sort.value === 'price') r.sort((a, b) => b.price - a.price);
+    const pages = Math.max(1, Math.ceil(r.length / PER)); if (pg > pages) pg = pages;
+    grid.innerHTML = r.slice((pg - 1) * PER, pg * PER).map(cardHTML).join('');   // zero results = blank, no message, no count
+    pager.innerHTML = [...Array(pages)].map((_, i) => `<a class="${i + 1 === pg ? 'on' : ''}" onclick="pg=${i + 1};apply()">${i + 1}</a>`).join('') + (pg < pages ? `<a onclick="pg++;apply()">Next ›</a>` : '');
+  }
+  apply();
+</script>
+</body></html>

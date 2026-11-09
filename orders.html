@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <h1>Orders</h1>
+    <div class="chips"><span class="chip on" onclick="f('All',this)">All</span><span class="chip" onclick="f('Processing',this)">Processing</span><span class="chip" onclick="f('Shipped',this)">Shipped</span><span class="chip" onclick="f('Delivered',this)">Delivered</span></div>
+    <table class="data panel" style="padding:0"><thead><tr><th>Order</th><th>Date</th><th>Items</th><th>Status</th><th>Total</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Orders');
+  function f(s, el) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('on')); el.classList.add('on');
+    rows.innerHTML = orders().filter(o => s === 'All' || o.status === s).reverse().map(o => `<tr><td><a href="order.html?id=${o.id}">${o.id}</a></td><td>${o.date}</td>
+      <td>${o.items.map(it => `<span class="thumb" style="width:30px;height:30px;font-size:15px">${prod(it.id).emoji}</span>`).join(' ')}</td><td>${statusBadge(o.status)}</td><td>${money(orderTotal(o))}</td>
+      <td><a class="btn sm secondary" href="order.html?id=${o.id}">View</a></td></tr>`).join('');
+  }
+  f('All', document.querySelector('.chip'));
+</script>
+</body></html>

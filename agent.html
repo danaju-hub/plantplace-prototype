@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script><script src="agent.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+
+<div class="agent-layout">
+  <aside class="rail">
+    <button class="btn block" onclick="newChat()">+ New chat</button>
+    <h5>History</h5><div id="hist"></div>
+    <h5>Credits</h5><div class="small"><b id="cr1"></b> left</div><a class="small" href="help.html">Get more</a>
+  </aside>
+  <div class="chatcol">
+    <div class="chattop"><span class="avatar" id="pav"></span><div><b id="pnm"></b><div class="tiny">PlantPlace AI · Beta</div></div><span class="cred" id="cr2"></span></div>
+    <div class="feed" id="feed"></div>
+    <div class="composer">
+      <div id="achip"></div>
+      <div class="row">
+        <button class="tool" onclick="file.click()">📎</button><input type="file" id="file" accept="image/*" style="display:none" onchange="attach()">
+        <button class="tool" onclick="mic()">🎤</button>
+        <textarea id="ta" rows="1" placeholder="Message" onkeydown="key(event)"></textarea>
+        <button class="send" id="sd" onclick="send()">↑</button>
+      </div>
+      <div class="hintline">Enter to send · Shift + Enter for a new line</div>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="cm"><div class="modal" style="text-align:left;width:480px"><span class="close" onclick="cm.style.display='none'">close</span><h3>Compare</h3><div id="cmb"></div></div></div>
+<div id="chrome-bottom"></div>
+<script>
+  const P = persona(); pav.textContent = P.emoji; pnm.textContent = P.name;
+  let pending = 0, fname = null, QS = [], CMP = new Set();
+  const STEPS = ['Reading your message', 'Searching listings', 'Checking availability', 'Comparing prices', 'Writing response…'];
+  function refresh() { cr1.textContent = credits(); cr2.textContent = '⚡ ' + credits() + ' credits'; hist.innerHTML = chatHist().map(h => `<a class="h" onclick="rerun(this.dataset.t)" data-t="${h.replace(/"/g, '&quot;')}">${h}</a>`).join('') || '<span class="tiny">Nothing yet</span>'; }
+  function hello() { feed.innerHTML = `<div class="msg"><span class="avatar">${P.emoji}</span><div class="bub">Hi, I'm ${P.name}! Ask me anything.</div></div>`; }
+  function newChat() { feed.innerHTML = ''; hello(); }   // no confirmation, no way back
+  function rerun(t) { feed.innerHTML = ''; run(t); }      // restarts the prompt, does not restore the old chat
+  function key(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+  function send() { if (pending) return toast("Can't stop right now"); const t = ta.value.trim(); if (!t) return; ta.value = ''; run(t, fname); fname = null; achip.innerHTML = ''; }
+  function attach() { if (file.files[0]) { fname = file.files[0].name; achip.innerHTML = `<span class="attach-chip">${fname} <b onclick="fname=null;achip.innerHTML=''">✕</b></span>`; } }
+  function mic() { toast('Listening…'); setTimeout(() => { ta.value = EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)]; }, 1200); }
+  function edit(b) { ta.value = b.dataset.t; ta.focus(); }   // copies text back; old exchange stays
+  function add(html) { feed.insertAdjacentHTML('beforeend', html); feed.scrollTop = feed.scrollHeight; return feed.lastElementChild; }
+  function run(text, f, regen) {
+    if (!feed.children.length) hello();
+    if (!regen) { pushHist(text); add(`<div class="msg user"><div class="bub">${text}${f ? '<br><small>📎 ' + f + '</small>' : ''}</div><button class="icon-btn editbtn" data-t="${text.replace(/"/g, '&quot;')}" onclick="edit(this)">${icon('edit')}</button></div>`); }
+    if (credits() <= 0) { add(`<div class="msg"><span class="avatar">${P.emoji}</span><div class="bub" style="background:#fdecec;color:#a63232">Out of credits.</div></div>`); return; }
+    setCredits(credits() - 1); refresh(); pending++; sd.textContent = '■';
+    const el = add(`<div class="msg"><span class="avatar">${P.emoji}</span><div class="bub"><div class="steps-live"></div></div></div>`), box = el.querySelector('.steps-live');
+    STEPS.forEach((s, i) => setTimeout(() => { box.innerHTML = STEPS.slice(0, i).map(x => `<div class="done">${x}</div>`).join('') + `<div class="cur">${s}</div>`; feed.scrollTop = feed.scrollHeight; }, i * 650));
+    setTimeout(() => { answer(el.querySelector('.bub'), text, regen); pending--; if (!pending) sd.textContent = '↑'; }, STEPS.length * 650);
+  }
+  function answer(bub, text, regen) {
+    const res = interpret(text);
+    if (res.kind === 'vague') { bub.textContent = 'Could you tell me more about what you are looking for?'; return; }   // same reply every time
+    if (res.kind === 'none') { bub.textContent = "Sorry, I couldn't find anything."; return; }                        // no suggestions to loosen constraints
+    let shown = res.all.slice(0, 4); if (regen) shown = shown.sort(() => Math.random() - .5);
+    const i = QS.push(text) - 1, ids = shown.map(p => p.id).join(',');
+    bub.innerHTML = `<div>${persona().line}</div><div class="small muted" style="margin-top:4px">I found ${res.all.length} options.</div>
+      <div class="rcards">${shown.map(p => `<div class="rcard"><span class="thumb">${p.emoji}</span><div><div class="nm"><a href="product.html?id=${p.id}">${p.name}</a></div>
+        <div class="tiny">${money(p.price)} · <span class="stars">${stars(p.rating)}</span> · ${p.seller}</div>
+        <div class="btns"><button class="btn sm secondary" onclick="addToCart(${p.id});this.textContent='Added ✓'">Add</button><label class="tiny" style="margin-left:6px"><input type="checkbox" onchange="cmp(${p.id},this.checked)"> Compare</label></div></div></div>`).join('')}</div>
+      <div class="acts"><button class="tool" onclick="rate(this)">👍</button><button class="tool" onclick="rate(this)">👎</button><button class="tool" onclick="navigator.clipboard&&navigator.clipboard.writeText('${persona().line}');toast('Copied')">Copy</button>
+        <button class="tool" onclick="run(QS[${i}],null,true)">Regenerate</button><button class="tool" onclick="toast('Link copied')">Share</button><button class="tool" onclick="saveS(${i})">Save</button>
+        <button class="tool" onclick="[${ids}].forEach(id=>addToCart(id));toast('Added')">Add all</button><button class="tool" onclick="showCmp()">Compare</button></div>
+      <div class="follow">${['Cheaper options', 'More like this', 'Something different'].map(t => `<span class="chip" onclick="run('${t}')">${t}</span>`).join('')}</div>`;
+    if (/gift|present/i.test(text)) bub.insertAdjacentHTML('beforeend', `<div class="upsell" style="margin-top:8px"><b>🎁 Make it a gift</b> <span class="small">Add wrap + card for $10.99 · <a href="giftcards.html?plant=${shown[0].id}">Send as gift</a></span></div>`);
+    if (agentSet().auto) { addToCart(shown[0].id); bub.insertAdjacentHTML('beforeend', '<p><b>Done!</b></p>'); }   // silently adds the top pick
+    feed.scrollTop = feed.scrollHeight;
+  }
+  function rate(b) { const r = b.parentNode; [...r.children].slice(0, 2).forEach(x => x.classList.remove('on')); b.classList.add('on'); }   // no thank-you, no reason, no effect
+  function saveS(i) { const l = JSON.parse(localStorage.getItem('pp_saved') || '[]'); l.push(QS[i]); localStorage.setItem('pp_saved', JSON.stringify(l)); toast('Saved'); }   // nowhere to view saved searches
+  function cmp(id, on) { on ? CMP.add(id) : CMP.delete(id); }
+  function showCmp() { if (CMP.size < 2) return toast('Select 2 or more'); cmb.innerHTML = `<table class="data"><thead><tr><th></th>${[...CMP].map(id => `<th>${prod(id).name}</th>`).join('')}</tr></thead><tbody><tr><td>Price</td>${[...CMP].map(id => `<td>${money(prod(id).price)}</td>`).join('')}</tr><tr><td>Rating</td>${[...CMP].map(id => `<td>${prod(id).rating}</td>`).join('')}</tr></tbody></table>`; cm.style.display = 'flex'; }   // omits light, water, pet safety
+  refresh(); hello();
+  const pend = sessionStorage.getItem('pp_pending'); if (pend) { sessionStorage.removeItem('pp_pending'); const o = JSON.parse(pend); run(o.text, o.file); }
+</script>
+</body></html>

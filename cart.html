@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Cart - PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container">
+  <h1>Cart</h1>
+  <div class="cols">
+    <div class="grow">
+      <div class="panel" style="background:#fff8e1;border-color:#f3e2a8;font-size:16px;font-weight:600;color:#3b3326">Have a promo code?
+        <span class="flex" style="margin-top:8px"><input id="code" placeholder="CODE" style="max-width:200px"><button class="btn" style="background:var(--orange);border-color:var(--orange)" onclick="applyCode()">APPLY</button></span>
+        <div id="pmsg" class="small" style="font-weight:400;margin-top:6px"></div></div>
+      <table class="data panel" style="padding:0"><thead><tr><th></th><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+      <div id="empty" class="empty-hint" style="display:none">0 items.</div>
+    </div>
+    <div class="summary panel">
+      <h3>Order Summary</h3>
+      <div class="line"><span>Subtotal</span><b id="sub">$0.00</b></div>
+      <div class="line" id="dl" style="display:none;color:var(--green)"><span>Discount</span><span id="dv"></span></div>
+      <div class="tiny">Taxes and shipping calculated later</div>
+      <div class="upsell"><b>Make it a gift 🎁</b><div class="small">Add gift wrap + a handwritten card for just $10.99.</div><button class="btn sm" style="margin-top:8px" onclick="addToCart(901);addToCart(902);draw();updateCount()">Add both</button> <a class="small" href="giftcards.html">Send as a gift →</a></div><div class="tiny" style="margin-top:10px">🌱 You'll earn <span id="pts">0</span> Plant Points</div>
+      <button class="btn block" style="margin-top:14px" onclick="go()">Submit</button>
+      <a href="browse.html" class="btn secondary block" style="margin-top:8px">Continue</a>
+    </div>
+  </div>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  function draw() {
+    const c = cart(); let t = 0;
+    rows.innerHTML = c.map((it, i) => { const p = prod(it.id); t += itemPrice(it) * it.qty;
+      return `<tr><td><span class="thumb">${p.emoji}</span></td><td>${it.id >= 900 ? itemName(it) : `<a href="product.html?id=${p.id}">${itemName(it)}</a>`}</td><td>${money(itemPrice(it))}</td>
+      <td><input class="qty-input" value="${it.qty}" onchange="setQty(${i},this.value)"></td><td>${money(itemPrice(it) * it.qty)}</td>
+      <td><button class="icon-btn" onclick="rm(${i})">✕</button></td></tr>`; }).join('');
+    sub.textContent = money(t); empty.style.display = c.length ? 'none' : 'block'; pts.textContent = Math.floor(t);
+    const d = discount(t); dl.style.display = d ? 'flex' : 'none'; dv.textContent = '-' + money(d);
+  }
+  function setQty(i, v) { const c = cart(); c[i].qty = Math.max(1, parseInt(v) || 1); saveCart(c); draw(); }
+  function rm(i) { const c = cart(); c.splice(i, 1); saveCart(c); draw(); updateCount(); }   // no confirm, no undo
+  function applyCode() { const v = code.value.trim().toUpperCase(); if (PROMOS[v]) { localStorage.setItem('pp_promo', v); pmsg.textContent = 'Code applied.'; } else { localStorage.removeItem('pp_promo'); pmsg.textContent = 'Invalid code.'; } draw(); }
+  function go() { if (!cart().length) return alert('Error 1042: Unable to process request.'); location = 'checkout.html'; }
+  draw();
+</script>
+</body></html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="narrow" style="max-width:900px">
+  <div class="row-between"><h1>Community</h1><button class="btn" onclick="np.style.display='flex'">New Post</button></div>
+  <div class="chips"><span class="chip on" onclick="f(this)">All</span><span class="chip" onclick="f(this)">Questions</span><span class="chip" onclick="f(this)">Showcase</span><span class="chip" onclick="f(this)">Tips</span></div>
+  <div class="panel" style="padding:0" id="list"></div>
+</div>
+<div class="modal-bg" id="np"><div class="modal" style="text-align:left"><span class="close" onclick="np.style.display='none'">close</span>
+  <h3>New post</h3><div class="field"><label>Title</label><input id="nt"></div>
+  <div class="field"><label>Topic</label><select id="nc"><option>Questions</option><option>Showcase</option><option>Tips</option></select></div>
+  <div class="field"><label>Body</label><textarea id="nb" rows="3"></textarea></div><button class="btn" onclick="addPost()">Submit</button></div></div>
+<div id="chrome-bottom"></div>
+<script>
+  let cur = 'All';
+  function f(el) { document.querySelectorAll('.chip').forEach(c => c.classList.remove('on')); el.classList.add('on'); cur = el.textContent; draw(); }
+  function draw() { list.innerHTML = posts().map((p, i) => [p, i]).filter(([p]) => cur === 'All' || p[1] === cur).map(([p, i]) => `<div class="post"><span class="avatar">${p[2][0]}</span><div class="grow"><h4><a href="post.html?id=${i}">${p[0]}</a></h4><div class="tiny">${p[2]} · <span class="badge">${p[1]}</span></div></div><div class="tiny">${p[3]} replies</div></div>`).join(''); }
+  function addPost() { if (!nt.value) return; const l = JSON.parse(localStorage.getItem('pp_posts') || '[]'); l.push([nt.value, nc.value, 'You', 0, nb.value]); localStorage.setItem('pp_posts', JSON.stringify(l)); np.style.display = 'none'; nt.value = nb.value = ''; draw(); }
+  draw();
+</script>
+</body></html>

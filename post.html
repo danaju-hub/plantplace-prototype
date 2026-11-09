@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="narrow">
+  <div class="crumbs"><a href="community.html">Community</a> / Post</div>
+  <div class="panel" id="op"></div>
+  <div id="replies"></div>
+  <form class="panel" onsubmit="add(event)"><div class="field"><label>Reply</label><textarea id="rt" rows="3"></textarea></div><button class="btn">Submit</button></form>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  const id = +q('id') || 0, P = posts()[id] || posts()[0], key = 'pp_replies_' + id;
+  const R0 = id === 0 ? [['DesertDan', 'Could be overwatering. Check if the soil is still wet.'], ['LeafyLoft', 'Yellow lower leaves are normal as it adjusts to new light.']] : [];
+  const R = R0.concat(JSON.parse(localStorage.getItem(key) || '[]'));
+  op.innerHTML = `<h1>${P[0]}</h1><div class="flex"><span class="avatar">${P[2][0]}</span><span class="tiny">${P[2]} · <span class="badge">${P[1]}</span></span></div><p>${P[4] || ''}</p>`;
+  function draw() { replies.innerHTML = R.map(r => `<div class="panel flex" style="align-items:flex-start"><span class="avatar">${r[0][0]}</span><div><b>${r[0]}</b><div>${r[1]}</div></div></div>`).join(''); }
+  function add(e) { e.preventDefault(); if (!rt.value) return; R.push(['You', rt.value]); localStorage.setItem(key, JSON.stringify(R.slice(R0.length))); rt.value = ''; draw(); }
+  draw();
+</script>
+</body></html>

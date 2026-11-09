@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="narrow" style="max-width:600px"><div class="quiz-card"><div class="progress"><div id="pb"></div></div><div id="qb"></div></div></div>
+<div id="chrome-bottom"></div>
+<script>
+  const Q = [['Your ideal weekend?', ['Staying in with a book', 'Brunch with friends', 'Hiking somewhere new']], ['Pick a color', ['Green', 'Pink', 'Yellow']], ['How do you handle stress?', ['Deep breaths', 'Call someone', 'Go for a run']]];
+  const R = [['🪴', 'Snake Plant', 'Resilient and quietly confident.'], ['🌿', 'Monstera', 'Bold, expressive and always growing.'], ['🌵', 'Cactus', 'Independent and full of surprises.']];
+  let i = 0, score = 0;
+  function draw() {
+    pb.style.width = (i / Q.length * 100) + '%';
+    if (i >= Q.length) { const r = R[score % 3]; qb.innerHTML = `<div class="result-emoji">${r[0]}</div><h1>You're a ${r[1]}!</h1><p class="muted">${r[2]}</p><button class="btn" onclick="toast('Link copied')">Share</button> <button class="btn secondary" onclick="i=0;score=0;draw()">Retake</button>`; return; }
+    qb.innerHTML = `<div class="tiny">Question ${i + 1} of ${Q.length}</div><h2 style="margin:6px 0 16px">${Q[i][0]}</h2>${Q[i][1].map((o, k) => `<div class="qopt" onclick="pick(this,${k})">${o}</div>`).join('')}`;
+  }
+  function pick(el, k) { el.classList.add('sel'); score += k; setTimeout(() => { i++; draw(); }, 350); }
+  draw();
+</script>
+</body></html>

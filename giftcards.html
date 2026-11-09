@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script><script src="agent.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container" style="max-width:1000px">
+  <div class="gift-hero"><div><h1>Give a little green 🎁</h1><div class="muted">Gift cards for every occasion, or a plant delivered to their door.</div></div><div style="font-size:60px">💚</div></div>
+
+  <div class="row-between"><div class="seg" style="margin:0"><a id="t0" class="on" onclick="tab(0)">Gift card</a><a id="t1" onclick="tab(1)">Send a plant</a></div>
+    <a class="small" href="#" onclick="mossy();return false">Not sure? Let Mossy pick →</a></div>
+
+  <div class="small muted" style="margin-top:16px">Occasion</div>
+  <div class="occ" id="occ"></div>
+  <div class="alert error" id="err">Error 1042: Invalid input.</div>
+
+  <div class="cols">
+    <div style="width:340px;flex-shrink:0;position:sticky;top:110px">
+      <div class="giftcard" id="gc"><div id="gtop">🌿 PlantPlace</div><div><div class="amt" id="pa">$50</div><div class="small" id="pt">For: someone special</div></div></div>
+      <div class="panel" id="plantPrev" style="display:none;text-align:center;background:#fffdf7;border-style:dashed"><div style="font-size:60px" id="ppe">🌿</div><div class="small muted" id="ppm" style="font-style:italic">Your message appears here</div></div>
+      <div class="panel gsum" id="sum" style="display:none"></div>
+    </div>
+
+    <div class="grow panel">
+      <!-- gift card form -->
+      <div id="f0">
+        <div class="field"><label>Amount</label><div class="chips" id="amts" style="margin:0"></div><input id="custom" placeholder="Custom amount" style="max-width:160px;margin-top:8px" oninput="customAmt()"></div>
+        <div class="field"><label>Design</label><select id="dz" onchange="design()"><option value="0">Classic green</option><option value="1">Sunrise</option><option value="2">Midnight</option></select></div>
+      </div>
+      <!-- plant form -->
+      <div id="f1" style="display:none">
+        <div class="field"><label>Choose a plant</label><div class="gp-grid" id="gp"></div></div>
+      </div>
+
+      <div class="grid2"><div class="field"><label>Recipient name</label><input id="rn" oninput="upd()"></div><div class="field"><label>Recipient email</label><input id="re"></div></div>
+      <div id="addr" style="display:none"><div class="field"><label>Street address</label><input id="ra"></div>
+        <div class="grid2"><div class="field"><label>City</label><input id="rc"></div><div class="field"><label>Zip</label><input id="rz"></div></div></div>
+      <div class="grid2"><div class="field"><label>Deliver on</label><input type="date" id="dd"></div><div class="field"><label>From</label><input id="fr" value="Dana"></div></div>
+      <div class="field"><label>Message</label><textarea id="msg" rows="3" maxlength="140" oninput="upd()"></textarea></div>
+
+      <div id="adds" style="display:none">
+        <h4 style="margin-top:6px">Make it extra special</h4>
+        <div class="addon"><input type="checkbox" id="a1" checked onchange="upd()"><label for="a1">🎀 Gift wrap</label><b>$6.00</b></div>
+        <div class="addon"><input type="checkbox" id="a2" checked onchange="upd()"><label for="a2">💌 Handwritten card</label><b>$4.99</b></div>
+        <div class="addon"><input type="checkbox" id="a3" checked onchange="upd()"><label for="a3">🛡️ Plant guarantee</label><b>$7.99</b></div>
+      </div>
+      <button class="btn block" id="go" style="margin-top:16px" onclick="add()">Add to Cart</button>
+    </div>
+  </div>
+
+  <div class="sub-promo"><div><b style="font-size:18px">Gift a plant every month 📦</b><div class="small" style="opacity:.8">A surprise plant at their door, from $29/mo.</div></div><button class="btn" onclick="sub()">Subscribe</button></div>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  const OCC = [['Birthday', '🎂', '#fde9d9', 'Happy birthday! Hope your day is wonderful.'], ['Thank you', '💐', '#e6f0fa', 'Thank you so much, it means a lot.'], ['New home', '🏡', '#e8f4ed', 'Congrats on the new place!'],
+    ['Congrats', '🎉', '#fdf3df', 'So proud of you. Congratulations!'], ['Get well', '🌼', '#f3ecdc', 'Thinking of you. Get well soon.'], ['Sympathy', '🕊️', '#e9ecee', 'With deepest sympathy.'], ['Just because', '💚', '#e1f1e7', 'Just because you are great.']];
+  const GRAD = ['linear-gradient(135deg,#2f8f5b,#1f6b43 60%,#174f33)', 'linear-gradient(135deg,#f09a3e,#d9643a)', 'linear-gradient(135deg,#2b3a55,#161d2e)'];
+  const PICKS = [6, 2, 1, 11, 8, 3].map(prod);
+  let tb = 0, oc = 0, amt = 50, pid = 6;
+  const hasPlantQ = q('plant'); if (hasPlantQ && prod(hasPlantQ)) { pid = +hasPlantQ; if (!PICKS.some(p => p.id === pid)) PICKS[0] = prod(pid); tb = 1; }
+  if (location.hash === '#plant') tb = 1;
+  function tab(i) { tb = i; t0.classList.toggle('on', !i); t1.classList.toggle('on', !!i); f0.style.display = i ? 'none' : 'block'; f1.style.display = i ? 'block' : 'none';
+    addr.style.display = i ? 'block' : 'none'; adds.style.display = i ? 'block' : 'none'; sum.style.display = i ? 'block' : 'none'; plantPrev.style.display = i ? 'block' : 'none'; gc.style.display = i ? 'none' : 'flex';
+    go.textContent = i ? 'Add to Cart' : 'Add to Cart'; upd(); }
+  function drawOcc() { occ.innerHTML = OCC.map((o, i) => `<span class="chip ${i === oc ? 'on' : ''}" onclick="pickOcc(${i})">${o[1]} ${o[0]}</span>`).join(''); }
+  function pickOcc(i) { oc = i; if (!msg.value || OCC.some(o => o[3] === msg.value)) msg.value = OCC[i][3]; drawOcc(); upd(); }
+  function drawAmts() { amts.innerHTML = [25, 50, 100, 200].map(a => `<span class="chip ${a === amt ? 'on' : ''}" onclick="amt=${a};custom.value='';drawAmts();upd()">$${a}</span>`).join(''); }
+  function customAmt() { const v = +custom.value; if (v >= 25) { amt = v; } drawAmts(); upd(); }   // under $25 silently ignored
+  function design() { gc.style.background = GRAD[dz.value]; }
+  function drawPlants() { gp.innerHTML = PICKS.map(p => `<div class="gp ${p.id === pid ? 'sel' : ''}" onclick="pid=${p.id};drawPlants();upd()"><div class="e">${p.emoji}</div><div class="small"><b>${p.name}</b></div><div class="tiny">${money(p.price)}</div></div>`).join(''); }
+  const plantTotal = () => { const p = prod(pid); return p.price + (a1.checked ? 6 : 0) + (a2.checked ? 4.99 : 0) + (a3.checked ? 7.99 : 0); };
+  function upd() {
+    pt.textContent = 'For: ' + (rn.value || 'someone special'); pa.textContent = '$' + amt; gtop.textContent = OCC[oc][1] + ' PlantPlace';
+    ppe.textContent = prod(pid).emoji; ppm.textContent = msg.value || 'Your message appears here'; plantPrev.style.background = OCC[oc][2];
+    if (tb) { const p = prod(pid);
+      sum.innerHTML = `<div class="line"><span>${p.name}</span><span>${money(p.price)}</span></div>${a1.checked ? '<div class="line"><span>Gift wrap</span><span>$6.00</span></div>' : ''}${a2.checked ? '<div class="line"><span>Handwritten card</span><span>$4.99</span></div>' : ''}${a3.checked ? '<div class="line"><span>Plant guarantee</span><span>$7.99</span></div>' : ''}
+        <div class="line tot"><span>Total</span><span>${money(plantTotal())}</span></div><div class="tiny">Delivery calculated at checkout · Service fee $2.99</div>`; }
+  }
+  function ok() { if (!rn.value || (tb && (!ra.value || !rc.value))) { err.classList.add('show'); return false; } err.classList.remove('show'); return true; }
+  function add() {   // no check that the delivery date is possible, or that the recipient will be home
+    if (!ok()) return;
+    const c = cart(), to = rn.value, meta = { to, email: re.value, date: dd.value, msg: msg.value, from: fr.value, occ: OCC[oc][0] };
+    if (!tb) { c.push({ id: 900, qty: 1, price: amt, label: `Gift Card $${amt} for ${to}`, gift: meta }); }
+    else { const p = prod(pid); c.push({ id: pid, qty: 1, price: p.price, label: `Gift: ${p.name} for ${to}${dd.value ? ' (' + dd.value + ')' : ''}`, gift: Object.assign({ addr: [ra.value, rc.value, rz.value] }, meta) });
+      if (a1.checked) c.push({ id: 901, qty: 1 }); if (a2.checked) c.push({ id: 902, qty: 1 }); if (a3.checked) c.push({ id: 903, qty: 1 }); c.push({ id: 905, qty: 1 }); }   // service fee added silently
+    saveCart(c); location = 'cart.html';
+  }
+  function sub() { const c = cart(); c.push({ id: 904, qty: 1, label: 'Plant of the Month' }); saveCart(c); location = 'cart.html'; }   // cart shows $29, not "/mo"
+  function mossy() { sessionStorage.setItem('pp_pending', JSON.stringify({ text: 'A plant gift for a ' + OCC[oc][0].toLowerCase() + ' under $50' })); location = 'agent.html'; }
+  drawOcc(); drawAmts(); drawPlants(); design(); tab(tb);
+</script>
+</body></html>

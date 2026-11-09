@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <h1>My Stuff</h1>
+    <div class="panel level"><div class="ringbig"><i>3<small>LEVEL</small></i></div><div class="grow"><h3>Sprout · 240 Plant Points</h3><div class="muted small">160 points to Seedling Pro</div><a href="rewards.html">See rewards</a></div><a class="btn secondary" href="garden.html">My Garden</a></div>
+    <div class="stats">
+      <div class="stat"><b id="oc">3</b><span class="muted small">Orders</span></div>
+      <div class="stat"><b id="wc">0</b><span class="muted small">Saved</span></div>
+      <div class="stat"><b>1,204</b><span class="muted small">Views</span></div>
+      <div class="stat"><b>$312.40</b><span class="muted small">Earnings</span></div>
+    </div>
+    <div class="panel"><div class="row-between"><h3>Recent order</h3><a href="orders.html">See all</a></div>
+      <table class="data"><tbody id="ro"></tbody></table></div>
+    <div class="panel"><h3>Quick links</h3>
+      <div class="flex" style="flex-wrap:wrap"><a class="btn secondary" href="settings.html">Preferences</a><a class="btn secondary" href="settings.html">Settings</a><a class="btn secondary" href="wishlist.html">Favorites</a><a class="btn secondary" href="wishlist.html">Watching</a><a class="btn secondary" href="orders.html">Purchases</a></div></div>
+    <p class="tiny">Last login: unknown</p>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Overview'); wc.textContent = wish().length; oc.textContent = orders().length;
+  ro.innerHTML = orders().slice(-1).map(o => `<tr><td><a href="order.html?id=${o.id}">${o.id}</a></td><td>${o.date}</td><td>${statusBadge(o.status)}</td><td>${money(orderTotal(o))}</td></tr>`).join('');
+</script>
+</body></html>

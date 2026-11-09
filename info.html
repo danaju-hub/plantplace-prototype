@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="narrow article" id="root"></div>
+<div id="chrome-bottom"></div>
+<script>
+  const I = {
+    shipping: ['Shipping', ['Orders usually ship within 3 business days.', 'Delivery takes 3-10 business days depending on the seller and your location.', 'Shipping costs are calculated at checkout.']],
+    returns: ['Returns', ['Please contact the seller within 7 days if there is a problem with your order.', 'Returns are handled case by case.']],
+    terms: ['Terms of Service', ['By using PlantPlace you agree to these terms.', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.']],
+    privacy: ['Privacy Policy', ['We care about your privacy.', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.']],
+    fees: ['Seller Fees', ['Listing is free.', 'We charge a fee on each sale. See your dashboard for details.']],
+    rules: ['Seller Rules', ['Only sell items you own.', 'Describe your items accurately.', 'Ship within the time you promise.']],
+    careers: ['Careers', ['We are always looking for great people.', 'No open positions right now. Check back soon.']],
+    press: ['Press', ['For press inquiries please contact press@plantplace.example.']],
+  };
+  const d = I[q('p')] || I.shipping;
+  root.innerHTML = `<h1>${d[0]}</h1>${d[1].map(p => `<p>${p}</p>`).join('')}`;
+</script>
+</body></html>

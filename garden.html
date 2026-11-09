@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <div class="row-between"><h1>My Garden</h1><button class="btn" onclick="addPlant()">+ Add plant</button></div>
+    <div class="panel level" style="margin-bottom:16px"><span style="font-size:40px">🌤️</span><div><h3>Good morning, Dana!</h3><div class="muted small">Your garden is feeling <b>happy</b> today. Streak: <span id="st">4</span> days</div></div></div>
+    <div class="garden-grid" id="gg"></div>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('My Garden');
+  let G = JSON.parse(localStorage.getItem('pp_garden') || 'null') || [{ n: 'Fernando', e: '🌿', s: 'Monstera', h: 82 }, { n: 'Spike', e: '🌵', s: 'Cactus', h: 95 }, { n: 'Pippa', e: '🍃', s: 'Pothos', h: 64 }];
+  const save = () => localStorage.setItem('pp_garden', JSON.stringify(G));
+  function draw() { gg.innerHTML = G.map((p, i) => `<div class="gcard"><span class="e" id="e${i}">${p.e}</span><h4 style="margin-top:6px">${p.n}</h4><div class="tiny">${p.s}</div>
+    <div class="bar"><div style="width:${p.h}%"></div></div><div class="tiny">Happiness ${p.h}%</div>
+    <div class="flex" style="justify-content:center;margin-top:10px"><button class="btn sm secondary" onclick="water(${i})">${icon('drop')} Water</button><button class="btn sm ghost" onclick="ren(${i})">Rename</button><button class="icon-btn" onclick="rm(${i})">${icon('trash')}</button></div></div>`).join(''); }
+  function water(i) { G[i].h = Math.min(100, G[i].h + 10); save(); draw(); document.getElementById('e' + i).classList.add('wiggle'); toast('Splash! 💦'); }
+  function ren(i) { const n = prompt('New name', G[i].n); if (n) { G[i].n = n; save(); draw(); } }
+  function rm(i) { G.splice(i, 1); save(); draw(); }
+  function addPlant() { const n = prompt('Name your plant'); if (!n) return; const e = ['🌿', '🪴', '🌵', '🍃', '🌱'][G.length % 5]; G.push({ n, e, s: 'Unknown', h: 70 }); save(); draw(); }
+  draw();
+</script>
+</body></html>

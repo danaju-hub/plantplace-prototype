@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="narrow article" id="root"></div>
+<div id="chrome-bottom"></div>
+<script>
+  const a = ARTICLES.find(x => x.id == q('id')) || ARTICLES[0];
+  root.innerHTML = `<div class="crumbs"><a href="blog.html">Blog</a> / ${a.tag}</div><h1>${a.title}</h1><div class="tiny">${a.date}</div>
+    <div class="cover" style="background:${a.bg}">${a.emoji}</div>${a.body.map(p => `<p>${p}</p>`).join('')}
+    <div class="flex" style="margin-top:24px"><button class="btn secondary sm" onclick="toast('Link copied')">Share</button><a class="btn secondary sm" href="blog.html">More articles</a></div>`;
+</script>
+</body></html>

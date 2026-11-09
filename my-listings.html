@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <div class="row-between"><h1>My Listings</h1><a class="btn" href="sell.html">+ New</a></div>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat"><b>1,204</b><span class="muted small">Views</span></div>
+      <div class="stat"><b>38</b><span class="muted small">Sales</span></div>
+      <div class="stat"><b>$312.40</b><span class="muted small">Earnings</span></div>
+    </div>
+    <table class="data panel" style="padding:0"><thead><tr><th></th><th>Listing</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('My Listings');
+  function draw() {
+    const mine = PRODUCTS.filter(p => p.seller === 'GreenThumb_Mike');
+    rows.innerHTML = mine.map(l => `<tr><td><span class="thumb">${l.emoji}</span></td><td><a href="product.html?id=${l.id}">${l.name}</a></td><td>${money(l.price)}</td>
+      <td><span class="badge ${l.mine ? 'orange' : 'green'}">${l.mine ? 'Pending' : 'Active'}</span></td>
+      <td><a class="icon-btn" href="sell.html?edit=${l.id}">${icon('edit')}</a><button class="icon-btn" onclick="del(${l.id})">${icon('trash')}</button></td></tr>`).join('');
+  }
+  function del(id) {   // no confirmation, no undo
+    if (id >= 100) { const l = loadListings(); l.splice(id - 100, 1); localStorage.setItem('pp_listings', JSON.stringify(l)); }
+    else { const h = JSON.parse(localStorage.getItem('pp_hidden') || '[]'); h.push(id); localStorage.setItem('pp_hidden', JSON.stringify(h)); }
+    location.reload();
+  }
+  draw();
+</script>
+</body></html>

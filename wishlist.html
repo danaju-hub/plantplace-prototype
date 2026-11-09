@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Wishlist - PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <h1>Wishlist</h1>
+    <div class="grid" id="g" style="grid-template-columns:repeat(3,1fr)"></div>
+    <div id="none" class="empty-hint" style="display:none">Nothing here.</div>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Wishlist');
+  const items = wish().map(prod).filter(Boolean);
+  g.innerHTML = items.map(cardHTML).join(''); none.style.display = items.length ? 'none' : 'block';
+</script>
+</body></html>

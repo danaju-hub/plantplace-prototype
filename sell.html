@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <h1 id="h">Create Listing</h1>
+    <div class="alert error" id="err">Error 1042: Invalid input.</div>
+    <form class="panel" onsubmit="return save(event)">
+      <div class="field"><label>Title</label><input id="ti"></div>
+      <div class="grid2"><div class="field"><label>SKU</label><input></div><div class="field"><label>Barcode</label><input></div></div>
+      <div class="field"><label>Taxonomy</label>
+        <select id="cat"><option value="">-- select --</option><option value="Houseplants">Houseplants &gt; Aroids &gt; Monstera</option><option value="Houseplants">Houseplants &gt; Aroids &gt; Philodendron</option>
+        <option value="Houseplants">Houseplants &gt; Succulents &gt; Cacti</option><option value="Houseplants">Houseplants &gt; Succulents &gt; Other</option><option value="Seeds">Seeds &gt; Herbs</option>
+        <option value="Seeds">Seeds &gt; Vegetables</option><option value="Pots">Pots &gt; Ceramic</option><option value="Pots">Pots &gt; Plastic</option><option value="Tools">Tools &gt; Hand</option>
+        <option value="Outdoor">... 31 more</option></select></div>
+      <div class="field"><label>Description</label><textarea rows="3"></textarea></div>
+      <div class="field"><label>Latin name</label><input id="la"></div>
+      <div class="grid2"><div class="field"><label>Price</label><input id="pr"></div><div class="field"><label>Compare at price</label><input></div></div>
+      <div class="grid2"><div class="field"><label>Cost per item</label><input></div><div class="field"><label>Quantity</label><input></div></div>
+      <div class="grid2"><div class="field"><label>Weight</label><input></div><div class="field"><label>Dimensions</label><input></div></div>
+      <div class="grid2"><div class="field"><label>Light</label><input id="li"></div><div class="field"><label>Water</label><input id="wa"></div></div>
+      <div class="grid2"><div class="field"><label>Humidity</label><input></div><div class="field"><label>Pet safe</label><input id="pe"></div></div>
+      <div class="field"><label>Images</label><input type="file"></div>
+      <div class="field"><label>Tags</label><input></div>
+      <div class="grid2"><div class="field"><label>Shipping profile</label><input></div><div class="field"><label>HS code</label><input></div></div>
+      <div class="grid2"><div class="field"><label>SEO title</label><input></div><div class="field"><label>SEO description</label><input></div></div>
+      <div class="field"><label>Visibility</label><select><option>Active</option><option>Draft</option></select></div>
+      <button class="btn">SUBMIT</button> <button class="btn secondary" type="button" onclick="history.back()">Back</button>
+    </form>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Create Listing');
+  const eid = q('edit') ? +q('edit') : null, ep = eid ? prod(eid) : null;
+  if (ep) { h.textContent = 'Create Listing'; ti.value = ep.name; la.value = ep.latin; pr.value = ep.price; li.value = ep.light === 'N/A' ? '' : ep.light; wa.value = ep.water === 'N/A' ? '' : ep.water; pe.value = ep.pet ? 'Yes' : ''; }
+  function save(e) {   // error at top only, field not marked, page not scrolled
+    e.preventDefault();
+    if (!ti.value || !pr.value || isNaN(+pr.value)) { err.classList.add('show'); return false; }
+    const rec = { title: ti.value, price: pr.value, latin: la.value, light: li.value, water: wa.value, pet: pe.value, cat: cat.value || (ep ? ep.cat : 'Houseplants') };
+    const l = loadListings();
+    if (eid >= 100) l[eid - 100] = rec;
+    else if (eid) { const ed = JSON.parse(localStorage.getItem('pp_edits') || '{}'); ed[eid] = { name: rec.title, latin: rec.latin, price: +rec.price }; localStorage.setItem('pp_edits', JSON.stringify(ed)); location = 'my-listings.html'; return false; }
+    else l.push(rec);
+    localStorage.setItem('pp_listings', JSON.stringify(l)); location = 'my-listings.html'; return false;
+  }
+</script>
+</body></html>

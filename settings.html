@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <h1>Settings</h1>
+    <div class="seg"><a class="on" onclick="sw(0,this)">Profile</a><a onclick="sw(1,this)">Preferences</a><a onclick="sw(2,this)">Account</a></div>
+    <div class="alert ok" id="ok">Saved.</div>
+    <div class="panel" id="p0">
+      <div class="flex" style="margin-bottom:16px"><span class="avatar lg">D</span><button class="btn secondary sm" onclick="toast('Upload coming soon')">Change</button></div>
+      <div class="grid2"><div class="field"><label>First name</label><input id="fn" value="Dana"></div><div class="field"><label>Last name</label><input id="ln" value="J."></div></div>
+      <div class="field"><label>Username</label><input id="un" value="dana_plants"></div>
+      <div class="field"><label>Bio</label><textarea id="bio" rows="3"></textarea></div>
+    </div>
+    <div class="panel" id="p1" style="display:none">
+      <div class="row-between" style="margin-bottom:14px"><span>Email notifications</span><div class="switch on" data-k="n1" onclick="flip(this)"></div></div>
+      <div class="row-between" style="margin-bottom:14px"><span>Promotions</span><div class="switch on" data-k="n2" onclick="flip(this)"></div></div>
+      <div class="row-between" style="margin-bottom:14px"><span>Order updates</span><div class="switch" data-k="n3" onclick="flip(this)"></div></div>
+      <div class="row-between"><span>Dark mode</span><div class="switch" id="dk" onclick="toggleDark();this.classList.toggle('on')"></div></div>
+    </div>
+    <div class="panel" id="p2" style="display:none">
+      <div class="field"><label>Email</label><input id="em" value="dana@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" value="password"></div>
+      <button class="btn" style="background:var(--red);border-color:var(--red)" onclick="localStorage.clear();location='login.html'">Delete account</button>
+    </div>
+    <button class="btn" onclick="saveAll()">Save</button>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Settings');
+  const S = JSON.parse(localStorage.getItem('pp_settings') || '{}');
+  ['fn', 'ln', 'un', 'bio', 'em'].forEach(k => { if (S[k] != null) document.getElementById(k).value = S[k]; });
+  document.querySelectorAll('[data-k]').forEach(el => { if (S[el.dataset.k] != null) el.classList.toggle('on', S[el.dataset.k]); });
+  dk.classList.toggle('on', document.documentElement.classList.contains('dark'));
+  function flip(el) { el.classList.toggle('on'); S[el.dataset.k] = el.classList.contains('on'); }
+  function saveAll() { ['fn', 'ln', 'un', 'bio', 'em'].forEach(k => S[k] = document.getElementById(k).value); localStorage.setItem('pp_settings', JSON.stringify(S)); ok.classList.add('show'); }
+  function sw(i, el) { document.querySelectorAll('.seg a').forEach(a => a.classList.remove('on')); el.classList.add('on'); [p0, p1, p2].forEach((p, j) => p.style.display = j === i ? 'block' : 'none'); ok.classList.remove('show'); }
+</script>
+</body></html>

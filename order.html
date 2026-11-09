@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow" id="root"></div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Orders');
+  const o = orders().find(x => x.id === q('id')) || orders()[0];
+  const A = o.addr || {};
+  root.innerHTML = `<div class="crumbs"><a href="orders.html">Orders</a> / ${o.id}</div>
+  <div class="row-between"><h1>Order ${o.id}</h1>${statusBadge(o.status)}</div>
+  <p class="muted small">Placed ${o.date}</p>
+  <div class="panel"><h3>Items</h3><table class="data"><tbody>${o.items.map(it => `<tr><td><span class="thumb">${prod(it.id).emoji}</span></td><td>${it.id >= 900 ? itemName(it) : `<a href="product.html?id=${it.id}">${itemName(it)}</a>`}<div class="tiny">${prod(it.id).seller}</div></td><td>${it.qty} × ${money(itemPrice(it))}</td></tr>`).join('')}</tbody></table></div>
+  <div class="cols"><div class="panel grow"><h3>Shipping address</h3><p class="muted">${A.first ? `${A.first} ${A.last}<br>${A.addr}<br>${A.city} ${A.zip}` : 'Dana J.<br>12 Example Street<br>Springfield, 00000'}</p></div>
+  <div class="panel grow"><h3>Summary</h3><div class="summary" style="width:auto;position:static"><div class="line"><span>Subtotal</span><span>${money(orderSub(o))}</span></div><div class="line"><span>Shipping</span><span>${money(o.ship)}</span></div><div class="line total"><span>Total</span><span>${money(orderTotal(o))}</span></div></div></div></div>
+  <div class="flex"><a class="btn secondary" href="messages.html?to=${prod(o.items[0].id).seller}">Contact Seller</a><button class="btn ghost" onclick="window.print()">Invoice</button><button class="btn ghost" disabled>Return</button></div>`;
+</script>
+</body></html>

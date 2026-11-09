@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <h1>Messages</h1>
+    <div class="panel cols" style="padding:0;gap:0;min-height:400px">
+      <div class="threads" style="width:260px;border-right:1px solid var(--line)" id="th"></div>
+      <div class="grow" style="padding:16px;display:flex;flex-direction:column">
+        <div class="grow" id="chat"></div>
+        <form class="flex" onsubmit="send(event)"><input id="msg" placeholder="Type a message"><button class="btn">Send</button></form>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Messages');
+  const T = JSON.parse(localStorage.getItem('pp_threads') || 'null') || [['PlantLady88', 'Is the pot included?', ['Hi! Is the pot included?', 'Hi, no, the plant ships in a nursery pot.']],
+    ['LeafyLoft', 'Thanks!', ['When will my order ship?', 'Tomorrow morning.', 'Thanks!']],
+    ['GreenThumb_Mike', 'Sure, I can do that', ['Can you combine shipping?', 'Sure, I can do that']]];
+  let cur = 0; const to = q('to'); if (to) { cur = T.findIndex(t => t[0] === to); if (cur < 0) { T.unshift([to, 'New conversation', []]); cur = 0; } }
+  function show(i) { cur = i; th.innerHTML = T.map((t, j) => `<a href="#" class="${j === i ? 'on' : ''}" onclick="show(${j});return false"><span class="avatar">${t[0][0]}</span><div><b>${t[0]}</b><div class="tiny">${t[1]}</div></div></a>`).join('');
+    chat.innerHTML = T[i][2].map((m, k) => `<div class="bubble ${k % 2 === 0 ? 'me' : ''}">${m}</div>`).join(''); }
+  function send(e) { e.preventDefault(); if (!msg.value) return; T[cur][2].push(msg.value); T[cur][1] = msg.value; msg.value = ''; localStorage.setItem('pp_threads', JSON.stringify(T)); show(cur); }
+  show(cur);
+</script>
+</body></html>

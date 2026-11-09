@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Product - PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container" id="root"></div>
+<div id="chrome-bottom"></div>
+<div class="modal-bg" id="ecom"><div class="modal"><span class="close" onclick="ecom.style.display='none'">close</span>
+  <h3>Eco score</h3><p class="muted">Our eco score reflects the planet-friendliness of this item based on a variety of factors.</p><button class="btn" onclick="ecom.style.display='none'">Got it</button></div></div>
+<script>
+  const p = prod(q('id')) || PRODUCTS[0];
+  const revKey = 'pp_rev_' + p.id;
+  const baseRev = [['Jenna', 5, 'Arrived healthy and bigger than expected!'], ['Marcus', 4, 'Nice plant, packaging could be better.'], ['Aiko', 5, 'Love it.']];
+  const reviews = () => baseRev.concat(JSON.parse(localStorage.getItem(revKey) || '[]'));
+  root.innerHTML = `
+  <div class="crumbs"><a href="index.html">Home</a> / <a href="browse.html">Shop</a> / <a href="browse.html?cat=${p.cat}">${p.cat}</a> / ${p.name}</div>
+  <div class="pdp">
+    <div class="gallery"><div class="main" style="background:#e9efe9">${p.emoji}</div></div>
+    <div class="info">
+      <h1>${p.name}</h1>
+      <div class="muted small" style="font-style:italic">${p.latin}</div>
+      <div style="margin-top:6px"><span class="stars">${stars(p.rating)}</span> <a class="tiny" onclick="tab(2,document.querySelectorAll('.tabs a')[2])" style="cursor:pointer">(${p.reviews})</a></div>
+      <div class="pprice">from ${money(p.price)}</div>
+      <div class="vibe">Plant personality: <b>${p.vibe}</b></div>
+      <div class="eco" onclick="ecom.style.display='flex'" style="--v:${p.eco}"><span class="ring"><i>${p.eco}</i></span><span class="small"><b>Eco score</b></span></div>
+      <p class="muted">A great addition to any home. Perfect for beginners and experts alike. Order today!</p>
+      <div class="actions">
+        <input class="qtybox" type="text" value="1" id="qty">
+        <button class="btn" onclick="addToCart(${p.id}, qty.value)">Add to Cart</button>
+        <button class="btn" onclick="addToCart(${p.id}, qty.value);location='cart.html'">Buy Now</button>
+        <button class="btn" id="wb" onclick="toggleWish(${p.id},this)">♡ Wishlist</button>
+        ${p.cat === 'Houseplants' || p.cat === 'Outdoor' ? `<button class="btn" onclick="location='giftcards.html?plant=${p.id}'">🎁 Send as gift</button>` : ''}
+      </div>
+      <div class="tiny">SKU: PP-${1000 + p.id * 7} &nbsp; Category: ${p.cat}</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <a class="on" onclick="tab(0,this)">Description</a><a onclick="tab(1,this)">Details</a>
+    <a onclick="tab(2,this)">Reviews</a><a onclick="tab(3,this)">Shipping</a><a onclick="tab(4,this)">Seller</a>
+  </div>
+  <div class="tabbody" id="tb"></div>
+
+  <h2>Related Items</h2>
+  <div class="grid">${PRODUCTS.slice(5, 9).map(cardHTML).join('')}</div>`;
+
+  function revHTML() {
+    return `<p>${p.rating} out of 5 based on ${p.reviews} reviews.</p>
+      ${reviews().map(r => `<div style="padding:10px 0;border-top:1px solid var(--line)"><b>${r[0]}</b> <span class="stars">${stars(r[1])}</span><div>${r[2]}</div></div>`).join('')}
+      <div style="border-top:1px solid var(--line);padding-top:14px"><h4>Write a review</h4>
+      <select id="rs" style="width:100px;margin-bottom:8px"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+      <textarea id="rt" rows="3" placeholder="Your review"></textarea><br><br><button class="btn sm" onclick="addRev()">Submit</button></div>`;
+  }
+  function addRev() { if (!rt.value) return; const l = JSON.parse(localStorage.getItem(revKey) || '[]'); l.push(['You', +rs.value, rt.value]); localStorage.setItem(revKey, JSON.stringify(l)); tb.innerHTML = revHTML(); }
+  const bodies = [
+    () => `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. This plant is popular among plant lovers. Sold by ${p.seller}.</p>`,
+    () => `<table class="data" style="max-width:360px"><tr><td class="muted">Light</td><td>${p.light}</td></tr><tr><td class="muted">Water</td><td>${p.water}</td></tr>
+      <tr><td class="muted">Pet safe</td><td>${p.pet ? 'Y' : 'N'}</td></tr><tr><td class="muted">Size</td><td>${p.size}</td></tr></table>`,
+    revHTML,
+    () => `<p>Ships in 3-10 business days. Shipping calculated at checkout. See our <a href="info.html?p=shipping">shipping policy</a>.</p>`,
+    () => `<div class="flex"><span class="avatar">${p.seller[0]}</span><div><a href="seller.html?name=${p.seller}"><b>${p.seller}</b></a><div class="tiny">Member since 2022</div></div></div>`,
+  ];
+  function tab(i, el) { document.querySelectorAll('.tabs a').forEach(a => a.classList.remove('on')); el.classList.add('on'); tb.innerHTML = bodies[i](); }
+  tb.innerHTML = bodies[0]();
+  if (wish().includes(p.id)) wb.classList.add('on');
+</script>
+</body></html>

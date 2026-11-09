@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Checkout - PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container">
+  <h1>Checkout</h1>
+  <div class="steps" id="steps"></div>
+  <div class="cols">
+    <div class="grow panel" id="stepbody"></div>
+    <div class="summary panel">
+      <h3>Your Order</h3><div id="items"></div>
+      <div class="line"><span>Subtotal</span><span id="s1"></span></div>
+      <div class="line" id="dl" style="display:none;color:var(--green)"><span>Discount</span><span id="dv"></span></div>
+      <div class="line"><span>Shipping</span><span id="s2">--</span></div>
+      <div class="line"><span>Tax</span><span id="s3">--</span></div>
+      <div class="line total"><span>Total</span><span id="s4">--</span></div>
+    </div>
+  </div>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  if (!cart().length) location = 'cart.html';
+  let step = 0, ship = null; const names = ['Info', 'Ship', 'Pay', 'Review'];
+  const A = JSON.parse(localStorage.getItem('pp_addr') || '{}');
+  const sub = cart().reduce((t, it) => t + itemPrice(it) * it.qty, 0), disc = discount(sub);
+  items.innerHTML = cart().map(it => `<div class="line"><span>${itemName(it)} × ${it.qty}</span><span>${money(itemPrice(it) * it.qty)}</span></div>`).join('');
+  s1.textContent = money(sub); if (disc) { dl.style.display = 'flex'; dv.textContent = '-' + money(disc); }
+  const calc = () => { const tax = (sub - disc + ship) * 0.08; return { tax, total: sub - disc + ship + tax }; };
+  const views = [
+    () => `<h3>Contact &amp; address</h3><div class="alert error" id="e">Error 1042: Invalid input.</div>
+      <div class="field"><label>Email</label><input id="f1" value="${A.email || ''}"></div>
+      <div class="grid2"><div class="field"><label>First name</label><input id="f2" value="${A.first || ''}"></div><div class="field"><label>Last name</label><input id="f4" value="${A.last || ''}"></div></div>
+      <div class="field"><label>Address</label><input id="f3" value="${A.addr || ''}"></div>
+      <div class="grid2"><div class="field"><label>City</label><input id="f5" value="${A.city || ''}"></div><div class="field"><label>Zip</label><input id="f6" value="${A.zip || ''}"></div></div>
+      <div class="field"><label>Phone</label><input></div>
+      <button class="btn" onclick="next(true)">Continue</button>`,
+    () => `<h3>Delivery method</h3>
+      <div class="option ${ship !== 12.95 ? 'sel' : ''}" onclick="pick(this,5.95)"><input type="radio" name="d" ${ship !== 12.95 ? 'checked' : ''}><div class="grow"><b>Standard</b><span class="tiny">3-10 business days</span></div><span>$5.95</span></div>
+      <div class="option ${ship === 12.95 ? 'sel' : ''}" onclick="pick(this,12.95)"><input type="radio" name="d" ${ship === 12.95 ? 'checked' : ''}><div class="grow"><b>Express</b><span class="tiny">2-5 business days</span></div><span>$12.95</span></div>
+      <p class="tiny">Live plants may be held until the weather improves.</p>
+      <button class="btn secondary" onclick="back()">Back</button> <button class="btn" onclick="next()">Continue</button>`,
+    () => `<h3>Payment</h3>
+      <div class="option sel" onclick="pick(this)"><input type="radio" name="p" checked><div class="grow"><b>Credit card</b></div></div>
+      <div class="field" style="margin-top:12px"><label>Card number</label><input placeholder="1234 1234 1234 1234"></div>
+      <div class="grid2"><div class="field"><label>Expiry</label><input placeholder="MM/YY"></div><div class="field"><label>CVC</label><input></div></div>
+      <div class="option" onclick="pick(this)"><input type="radio" name="p"><div class="grow"><b>PayPal</b></div></div>
+      <button class="btn secondary" onclick="back()">Back</button> <button class="btn" onclick="next()">Continue</button>`,
+    () => `<h3>Review order</h3><p class="muted">Ship to: ${A.first || ''} ${A.last || ''}, ${A.addr || ''}, ${A.city || ''} ${A.zip || ''}</p><p class="muted">By placing your order you agree to our <a href="info.html?p=terms">Terms</a>.</p>
+      <button class="btn secondary" onclick="back()">Back</button> <button class="btn" onclick="place()">Submit</button>`,
+  ];
+  function totals() { if (ship === null) return; const c = calc(); s2.textContent = money(ship); s3.textContent = money(c.tax); s4.textContent = money(c.total); }
+  function draw() {
+    steps.innerHTML = names.map((n, i) => `<div class="step ${i === step ? 'on' : i < step ? 'done' : ''}">${i + 1}. ${n}</div>`).join('');
+    stepbody.innerHTML = views[step](); totals();
+  }
+  function next(validate) {
+    if (validate) { if (!(f1.value && f2.value && f3.value)) { e.classList.add('show'); return; }
+      Object.assign(A, { email: f1.value, first: f2.value, last: f4.value, addr: f3.value, city: f5.value, zip: f6.value }); localStorage.setItem('pp_addr', JSON.stringify(A)); }
+    if (step === 1 && ship === null) ship = 5.95; step++; draw(); }
+  function back() { step--; draw(); }
+  function pick(el, price) { el.parentNode.querySelectorAll('.option').forEach(o => { o.classList.remove('sel'); o.querySelector('input').checked = false; }); el.classList.add('sel'); el.querySelector('input').checked = true; if (price) { ship = price; totals(); } }
+  function place() {
+    const n = 'PP-' + (20560 + Math.floor(Math.random() * 400)), d = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const o = { id: n, date: d, status: 'Processing', items: cart(), ship, total: calc().total, addr: A };
+    const l = JSON.parse(localStorage.getItem('pp_orders') || '[]'); l.push(o); localStorage.setItem('pp_orders', JSON.stringify(l));
+    saveCart([]); localStorage.removeItem('pp_promo'); location = 'confirmation.html?id=' + n;
+  }
+  ship = null; draw();
+</script>
+</body></html>

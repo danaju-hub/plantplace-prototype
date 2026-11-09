@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="narrow">
+  <h1>Help</h1>
+  <div class="search" style="max-width:none;margin-bottom:20px"><span id="si"></span><input id="hq" placeholder="Search help" oninput="draw()"></div>
+  <div id="faqs"></div>
+  <h2 id="contact">Contact us</h2>
+  <form class="panel" onsubmit="event.preventDefault();this.querySelector('button').textContent='Sent'">
+    <div class="field"><label>Email</label><input></div><div class="field"><label>Message</label><textarea rows="4"></textarea></div><button class="btn">Submit</button>
+  </form>
+</div>
+<div id="chrome-bottom"></div>
+<script>
+  si.innerHTML = icon('search');
+  const F = [['How long does shipping take?', 'Usually 3-10 business days depending on the seller.'], ['Can I return a plant?', 'Please see our returns policy.'],
+    ['How do I become a seller?', 'Click Sell at the top of the page and create a listing.'], ['What are the fees?', 'Fees vary.'], ['Is this plant safe for pets?', 'Check the listing details.']];
+  function draw() { faqs.innerHTML = F.filter(f => !hq.value || (f[0] + f[1]).toLowerCase().includes(hq.value.toLowerCase())).map(f => `<div class="faq"><div class="q" onclick="this.parentNode.classList.toggle('open')">${f[0]} <span>${icon('chev')}</span></div><div class="a">${f[1]}</div></div>`).join(''); }
+  draw();
+</script>
+</body></html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container"><div class="cols">
+  <div id="side"></div>
+  <div class="grow">
+    <h1>Rewards</h1>
+    <div class="panel level"><div class="ringbig"><i>240<small>POINTS</small></i></div><div class="grow"><h3>Level 3 · Sprout</h3><div class="muted small">160 points to Seedling Pro</div></div></div>
+    <h2 style="margin-top:20px">Badges</h2>
+    <div class="badges panel"><div class="bdg"><span>🌱</span>First order</div><div class="bdg"><span>💬</span>Chatty</div><div class="bdg"><span>⭐</span>Reviewer</div><div class="bdg locked"><span>🌳</span>Collector</div><div class="bdg locked"><span>🏆</span>Legend</div><div class="bdg locked"><span>🐝</span>Pollinator</div></div>
+    <h2>Redeem</h2>
+    <div class="panel"><div class="row-between"><div><b>$5 off your next order</b><div class="tiny">500 points</div></div><button class="btn sm secondary" onclick="toast('Coming soon')">Redeem</button></div></div>
+    <div class="panel"><div class="row-between"><div><b>Free shipping</b><div class="tiny">800 points</div></div><button class="btn sm secondary" onclick="toast('Coming soon')">Redeem</button></div></div>
+    <h2>Leaderboard</h2>
+    <table class="data panel" style="padding:0"><tbody><tr><td>1</td><td>PlantLady88</td><td>2,140</td></tr><tr><td>2</td><td>DesertDan</td><td>1,820</td></tr><tr><td>3</td><td>LeafyLoft</td><td>1,402</td></tr><tr><td>...</td><td>You</td><td>240</td></tr></tbody></table>
+  </div>
+</div></div>
+<div id="chrome-bottom"></div>
+<script>
+  side.outerHTML = renderSide('Rewards');
+</script>
+</body></html>

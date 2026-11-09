@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Seller - PlantPlace</title>
+<link rel="stylesheet" href="styles.css"><script src="app.js"></script></head>
+<body>
+<div id="chrome-top"></div>
+<div class="container" id="root"></div>
+<div id="chrome-bottom"></div>
+<script>
+  const nm = q('name') || SELLERS[0];
+  root.innerHTML = `<div class="crumbs"><a href="sellers.html">Sellers</a> / ${nm}</div>
+  <div class="panel flex" style="gap:18px"><span class="avatar lg">${nm[0]}</span>
+    <div class="grow"><h1 style="margin:0">${nm}</h1><div class="muted small">Member since 2022 · Springfield</div>
+    <div style="margin-top:4px"><span class="stars">★★★★☆</span> <span class="tiny">4.6</span></div></div>
+    <button class="btn secondary" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'Following':'Follow'">Follow</button>
+    <a class="btn" href="messages.html">Message</a></div>
+  <h2 style="margin-top:20px">Listings</h2>
+  <div class="grid">${PRODUCTS.filter(p => p.seller === nm).map(cardHTML).join('')}</div>`;
+</script>
+</body></html>
